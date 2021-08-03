@@ -1,4 +1,4 @@
-from random import choices
+from random import sample, choice
 
 from sqlalchemy import Column, Integer, Text, DateTime, func, Boolean
 from sqlalchemy.orm import declarative_base
@@ -19,20 +19,29 @@ class BandMember(Base):
     def __str__(self):
         return self.name
 
+
 class Band:
     def __init__(self, members):
         self.members = members
 
-    def we_have_drummer(self):
-        pass
+    def instrument_present(self, instrument):
+        for member in self.members:
+            instruments = member.instruments.split(', ')
+            if instrument in instruments:
+                member.instruments = instrument
+                return True
+        return False
 
-    def we_have_bass(self):
-        pass
+    def det_instrument(self):
+        for member in self.members:
+            instruments = member.instruments.split(', ')
+            member.instruments = choice(instruments)
 
     def create_band(self, jam_members_count):
-        chosen_members = choices(self.members, k=jam_members_count)
-        for member in chosen_members:
-            print(member)
+        sampled_band = Band([])
+        while (not sampled_band.instrument_present('Bass')) or (not sampled_band.instrument_present('Drums')):
+            sampled_band = Band(sample(self.members, k=jam_members_count))
+        return sampled_band
 
     def __str__(self):
         names = [obj.name + ', ' for obj in self.members]
@@ -43,11 +52,12 @@ class Band:
 
 if __name__ == '__main__':
     members = []
-    members.append(BandMember(instruments='Guitar, Base', name='Sanya'))
+    members.append(BandMember(instruments='Guitar, Bass', name='Sanya'))
     members.append(BandMember(instruments='Drums', name='Andrew'))
     members.append(BandMember(instruments='Synthesizer', name='Nick'))
-    members.append(BandMember(instruments='Guitar, Base', name='Sanya'))
+    members.append(BandMember(instruments='Guitar, Bass', name='Sanya'))
     members.append(BandMember(instruments='Guitar, Synthesizer', name='Eldar'))
 
     band = Band(members)
-    band.create_band(3)
+    new_band = band.create_band(3)
+    print(new_band)

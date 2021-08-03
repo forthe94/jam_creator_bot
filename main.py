@@ -7,7 +7,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from settings import DB_URL
 
-from band import BandMember
+from band import BandMember, Band
 
 load_dotenv()
 TOKEN = os.getenv('TOKEN')
@@ -71,6 +71,23 @@ async def process_start_command(message: types.Message):
 async def process_help_command(message: types.Message):
     await message.reply("Напиши мне что-нибудь, и я отпрпавлю этот текст тебе в ответ!")
 
+
+@dp.message_handler(commands=['jam'])
+async def process_help_command(message: types.Message):
+    members = session.query(BandMember).all()
+    mem_count = int(message.get_args())
+    if mem_count > len(members):
+        await message.reply("Выхотите в джем больше участников чем есть!")
+    else:
+
+        band = Band(members)
+
+        band = band.create_band(mem_count)
+        band.det_instrument()
+        repl = ""
+        for mem in band.members:
+            repl += mem.name + " " + mem.instruments + "\n"
+        await message.reply("А теперь играют:\n" + repl)
 
 @dp.message_handler()
 async def echo_message(msg: types.Message):
