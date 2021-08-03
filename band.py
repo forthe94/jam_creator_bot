@@ -1,4 +1,4 @@
-from random import sample, choice
+from random import sample, choice, choices
 
 from sqlalchemy import Column, Integer, Text, DateTime, func, Boolean
 from sqlalchemy.orm import declarative_base
@@ -23,19 +23,22 @@ class BandMember(Base):
 class Band:
     def __init__(self, members):
         self.members = members
+        self.chosen_instrument = None
 
     def instrument_present(self, instrument):
         for member in self.members:
-            instruments = member.instruments.split(', ')
+            instruments = member.instruments.replace(' ', '')
+            instruments = instruments.split(',')
             if instrument in instruments:
-                member.instruments = instrument
+                member.chosen_instrument = instrument
                 return True
         return False
 
     def det_instrument(self):
         for member in self.members:
-            instruments = member.instruments.split(', ')
-            member.instruments = choice(instruments)
+            instruments = member.instruments.replace(' ', '')
+            instruments = instruments.split(',')
+            member.chosen_instrument = choice(instruments)
 
     def create_band(self, jam_members_count):
         sampled_band = Band([])

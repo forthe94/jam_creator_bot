@@ -73,20 +73,21 @@ async def process_help_command(message: types.Message):
 
 
 @dp.message_handler(commands=['jam'])
-async def process_help_command(message: types.Message):
-    members = session.query(BandMember).all()
+async def process_jam_command(message: types.Message):
+    ses_members = session.query(BandMember).all()
+    session.flush()
     mem_count = int(message.get_args())
-    if mem_count > len(members):
+    if mem_count > len(ses_members):
         await message.reply("Выхотите в джем больше участников чем есть!")
     else:
 
-        band = Band(members)
+        band = Band(ses_members)
 
         band = band.create_band(mem_count)
         band.det_instrument()
         repl = ""
         for mem in band.members:
-            repl += mem.name + " " + mem.instruments + "\n"
+            repl += mem.name + " " + mem.chosen_instrument + "\n"
         await message.reply("А теперь играют:\n" + repl)
 
 @dp.message_handler()
